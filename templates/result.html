@@ -15,38 +15,35 @@
         </nav>
         <header class="masthead bg-primary text-white text-center">
             <div class="container d-flex align-items-center flex-column">
-                <h2 class="masthead-heading text-uppercase mb-0">About Project</h2>
+                <h2 class="masthead-heading text-uppercase mb-0">Original Text</h2>
                 <div class="divider-custom divider-light">
                     <div class="divider-custom-line"></div>
                     <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
                     <div class="divider-custom-line"></div>
                 </div>
                 <p class="masthead-subheading font-weight-light mb-0">
-                    We are generating textual summarization of the videographic content. Here we are working with educational videos only where the speaker is speaking something. From his/her speech, we are extracting the sentences by using the NLP model followed by summarization of the sentences by using Deep Learning models. For that you need to pass a youtube link of the video in the input box below. We will generate a summary of the video in the form of text.  
+                    Video URL: {{url}}<br>
+                    {{text}}
                 </p>
             </div>
         </header>
         <section class="page-section" id="contact">
             <div class="container">
-                <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Input Here</h2>
+                <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Summarized Text</h2>
                 <div class="divider-custom">
                     <div class="divider-custom-line"></div>
                     <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
                     <div class="divider-custom-line"></div>
                 </div>
-                <div class="row justify-content-center">
-                    <div class="col-lg-8 col-xl-7">
-                        <form id="contactForm" action="/video" method="post">
-                            <div class="form-floating mb-3">
-                                <input class="form-control" id="url" name="url" type="text" placeholder="Video URL" data-sb-validations="required" required />
-                                <label for="url">Video URL</label>
-                            </div>
-                            <center>
-                            <input class="btn btn-primary btn-xl" id="submitButton" form="contactForm" value="Submit" type=submit></input>
-                            </center>
-                        </form>
-                    </div>
-                </div>
+                <center>
+                <p class="masthead-subheading font-weight-light mb-0">
+                    {{summary}}
+                </p>
+                <br>
+                <a href="/">Back To Home</a>
+                </center>
+
+
             </div>
         </section>
         <!-- About Section-->
