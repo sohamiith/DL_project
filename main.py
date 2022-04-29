@@ -9,15 +9,22 @@ def index():
 @app.route("/video", methods=['GET', 'POST'])
 def get_video_url():
 	for key, value in request.form.items():
-		url = value
+		if key == 'url': 
+			url = value
+		if key == 'method': 
+			method = value
+		if key == 'per': 
+			per = value
 	path = download(url)
 	audio = convertAudio(path)
 	text = generateText(audio)
 	summary = generateSummary(text)
 	# result = {
 	# 	"url" : url,
-	# 	"original_text":text,
-	# 	"summary": summary
+	# 	"method" : method,
+	# 	"per" : per,
+	#  	"original_text":text,
+	#  	"summary": summary
 	# }
 	return render_template('result.html', url=url, text=text, summary=summary)
 	#return jsonify(result)
