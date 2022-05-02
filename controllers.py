@@ -1,3 +1,9 @@
+"""
+
+Developed by: Soham Bhatt (SM21MTECH14004)
+
+"""
+
 from pytube import YouTube
 import moviepy.editor as mp
 import os
@@ -60,6 +66,8 @@ def generateText(path,method):
 	return whole_text
 
 def generateSummary(text, x = 0.25):
+
+	return "hello"
 
 	tokenizer = PegasusTokenizer.from_pretrained("google/pegasus-wikihow")
 	model = PegasusForConditionalGeneration.from_pretrained("google/pegasus-wikihow")
