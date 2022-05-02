@@ -66,14 +66,11 @@ def generateText(path,method):
 	return whole_text
 
 def generateSummary(text, x = 0.25):
-
-	return "hello"
+	#Write code to generate summary here
 
 	tokenizer = PegasusTokenizer.from_pretrained("google/pegasus-wikihow")
 	model = PegasusForConditionalGeneration.from_pretrained("google/pegasus-wikihow")
-	#Write code to generate summary here
-	#return "archaeology is the study of the past it takes many forms looking narrow near to take a people and critical period but also a great changes over a thousand year it looks at the best from above study in the development of states and the practice of power and from below seeking to recover the lions in times of those who went The history of the world has been written by a man who was fascinated by cause and effect a few years later in china bakre and his story and symmetry and world history the business head for the state and include. One of the most important events in the history of the west was the fall of the Roman Empire.Is willing executioners and lucientopher brown is ordinary man come to completely different conclusions about the causes of the halke favre in the problem of unbelief in 16th century river the history of reformation error friends in renting a toolkit of new ideas to get into the head the interior space of those alive"
-
+	
 	listTemp = []
 	main_listText = []
 	
