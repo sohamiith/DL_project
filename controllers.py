@@ -1,26 +1,97 @@
-#from pytube import YouTube
+from pytube import YouTube
+import moviepy.editor as mp
+import os
+from pydub import AudioSegment
+from pydub.silence import split_on_silence
+import speech_recognition as sr
+import math
+import wave
+import contextlib
+from pydub.utils import make_chunks
+from transformers import PegasusForConditionalGeneration, PegasusTokenizer
+
 
 def download(url, outpath="./videos"):
 	# Write code to download video from youtube
-	"""
+	
 	yt = YouTube(url)
 	path = yt.streams.filter(file_extension="mp4").get_by_resolution("360p").download(outpath)
 	return path
-	"""
-	return "path"
 
 def convertAudio(path):
 	# Write code here to convert into audio file
-	return "audio"
+	
+	clip = mp.VideoFileClip(path)
+	clip.audio.write_audiofile("./audios/test.wav",codec='pcm_s16le')
+	return '/var/www/DL_project/audios/test.wav'
 
-def generateText(audio):
+def generateText(path,method):
 	# Generate text
-	return "Welcome to make at multimedia series and to make at introduction to history history is the study of the past it takes many forms looking narrow near to take a people and critical period but also a great changes over a thousand year it looks at the best from above study in the development of states and the practice of power and from below seeking to recover the lions in times of those who went on recorded in a day history and study continuity and change in economics and culture gender and ethnicity ideas society revision the environment and science concepts and techniques from other disciplines archaeology sociology anthropology in every case however what i do is produced. About the author and in turn helps us to understand our present if you ever wondered why it's worth knowing history consider how difficult it would be the take a decision about anything without knowing what happened yesterday for help or not the world with their history was released by the state and even took over as it was by big brother in 1984 history has been running since the days of ancient greece routers in his histories and acidity who wrote the history of the balcony din war to travel together then try to work out was reliable when was not and was fascinated by cause and effect a few hundred years later in china bakre and his story and symmetry and world history the business head for the state and include. Baby day people as well as rulers and a general caught up in the politics of the imperial cord symmetry and also made a decision that speaks to the importance of studies of the choice between an honorable that castration it has to be castrated write history ch 1 history can claim to be among the most significant hackademic this point it is never developed the same code for the wreck of texts morals and required courses that accept that speakers store in 6 endlessly confronted by complexity they have to recognise how many different factors combined to cause the west and have a unique combinations are this also means that history is of an open through a variety of interpretations the library includes examples of very different interpretations of the same events then you go there again. Is willing executioners and christopher brown is ordinary man come to completely different conclusions about the causes of the halke lucien favre in the problem of unbelief in 16th century river the history of reformation error friends in renting a toolkit of new ideas to get into the head the interior space of those alive at the time and spirited avengers in the fans of history assesses the problem at the root of all historical enquiry objective is a study of the best taken together these analyses tells you to test your own powers of deduction and reach around conclusions elsewhere your read analyses a better groundbreaking work the did more than simply tell the story of a time and place the chain. The way that all the best think through the structure of scientific revolutions in to discuss the idea of a paradigm gender and politics history suggests that sex is determined as much my language and society as biology and credit jackson turn is 1893 aise the significance of the frontier in american history in defining a process that helped shape american character change the narrow my understanding of america's past but also have the country itself so it future we can help you to understand narrowly history but it is torrents and only the best but the present come inside to find out more look at their things mata am hire."
 
-def generateSummary(text):
-	# Write code to generate summary here
-	return "archaeology is the study of the past it takes many forms looking narrow near to take a people and critical period but also a great changes over a thousand year it looks at the best from above study in the development of states and the practice of power and from below seeking to recover the lions in times of those who went The history of the world has been written by a man who was fascinated by cause and effect a few years later in china bakre and his story and symmetry and world history the business head for the state and include. One of the most important events in the history of the west was the fall of the Roman Empire.Is willing executioners and lucientopher brown is ordinary man come to completely different conclusions about the causes of the halke favre in the problem of unbelief in 16th century river the history of reformation error friends in renting a toolkit of new ideas to get into the head the interior space of those alive"
-"""
-def sum1(a,b):
-	return a+b
-"""
+	r = sr.Recognizer()
+	sound = AudioSegment.from_wav(path)	
+
+	if method == 'abstractive':
+		chunk_size = 20#math.ceil(ratio_percent*seconds)
+		myaudio = AudioSegment.from_file(path, "wav") 
+		chunk_length_ms = chunk_size*1000 # pydub calculates in millisec 
+		chunks = make_chunks(myaudio,chunk_length_ms) #Make chunks of one sec 
+	else:
+		chunks = split_on_silence(sound,min_silence_len = 500,silence_thresh = sound.dBFS-14,keep_silence=2000)
+
+	folder_name = "./audios/chunks"
+	if not os.path.isdir(folder_name):
+		os.mkdir(folder_name)
+
+	print("running...")
+	whole_text = ""
+	for i, audio_chunk in enumerate(chunks, start=1):
+		chunk_filename = os.path.join(folder_name, f"chunk{i}.wav")
+		audio_chunk.export(chunk_filename, format="wav")
+		with sr.AudioFile(chunk_filename) as source:
+			audio_listened = r.record(source)
+			try:
+				text = r.recognize_google(audio_listened)
+			except sr.UnknownValueError as e:
+				print("Done ",i, str(e))
+			else:
+				text = f"{text.capitalize()}."
+				whole_text += text
+	return whole_text
+
+def generateSummary(text, x = 0.25):
+
+	tokenizer = PegasusTokenizer.from_pretrained("google/pegasus-wikihow")
+	model = PegasusForConditionalGeneration.from_pretrained("google/pegasus-wikihow")
+	#Write code to generate summary here
+	#return "archaeology is the study of the past it takes many forms looking narrow near to take a people and critical period but also a great changes over a thousand year it looks at the best from above study in the development of states and the practice of power and from below seeking to recover the lions in times of those who went The history of the world has been written by a man who was fascinated by cause and effect a few years later in china bakre and his story and symmetry and world history the business head for the state and include. One of the most important events in the history of the west was the fall of the Roman Empire.Is willing executioners and lucientopher brown is ordinary man come to completely different conclusions about the causes of the halke favre in the problem of unbelief in 16th century river the history of reformation error friends in renting a toolkit of new ideas to get into the head the interior space of those alive"
+
+	listTemp = []
+	main_listText = []
+	
+	inputList = list(text.split('.'))
+	l = len(inputList)
+	chunk_size = math.ceil(l * x)      
+	i = 0
+	j = chunk_size - 1
+	iterations = l / (chunk_size)
+
+	while i < l:
+		listTemp.append(inputList[i])
+		if len(listTemp) >= chunk_size:
+			main_listText.append('.'.join(listTemp))
+			listTemp = []
+		i += 1
+	if len(listTemp) != 0:
+		main_listText.append('.'.join(listTemp))
+	
+	# Create tokens - number representation of our text
+	token = tokenizer(main_listText, truncation = True, padding = "longest", return_tensors = "pt")
+	# Summarize
+	summary = model.generate(**token)
+	i = 0
+	summaryText = ""
+	while(i < len(summary)):
+		summaryText += tokenizer.decode(summary[i])
+		i += 1
+	return summaryText
